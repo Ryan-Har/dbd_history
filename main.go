@@ -20,6 +20,11 @@ type Entry struct {
 	Character string
 }
 
+type HistoryPageData struct {
+	Entries []Entry
+	Count   int
+}
+
 func main() {
 	var err error
 	db, err = sql.Open("sqlite3", "./db/characters.db")
@@ -94,7 +99,12 @@ func handleHistory(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	templates.ExecuteTemplate(w, "history.html", history)
+	data := HistoryPageData{
+		Entries: history,
+		Count:   len(history),
+	}
+
+	templates.ExecuteTemplate(w, "history.html", data)
 }
 
 func handleDelete(w http.ResponseWriter, r *http.Request) {
