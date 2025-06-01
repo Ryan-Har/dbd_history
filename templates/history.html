@@ -109,7 +109,18 @@
   <body>
     <section class="section">
       <div class="container">
-        <h1 class="title has-text-light">Character Selection History</h1>
+        <div class="level">
+          <div class="level-left">
+            <h1 class="title has-text-light level-item">
+              Character Selection History
+            </h1>
+          </div>
+          <div class="level-right">
+            <span class="level-item">Total: {{.Count}}</span>
+            <a href="/" class="button back-button level-item">Back</a>
+          </div>
+        </div>
+
         <table>
           <thead>
             <tr>
@@ -118,7 +129,7 @@
             </tr>
           </thead>
           <tbody>
-            {{range .}}
+            {{range .Entries}}
             <tr x-data="{ confirmDelete: false }">
               <td>{{.Timestamp}}</td>
               <td>
@@ -159,7 +170,6 @@
             {{end}}
           </tbody>
         </table>
-        <a href="/" class="button back-button">Back</a>
       </div>
     </section>
   </body>
