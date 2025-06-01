@@ -18,8 +18,7 @@ This is a small Go web application designed to help you keep track of the variou
 
 You'll need the following installed on your machine:
 
-* **Go (1.20 or newer recommended)**: You can download it from [golang.org/doc/install](https://golang.org/doc/install).
-* **Git**: You can get it from [git-scm.com/book/en/v2/Getting-Started-Installing-Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
+* **Go (1.23.5 or newer recommended)**: You can download it from [golang.org/doc/install](https://golang.org/doc/install).
 
 ### Installation
 
@@ -27,7 +26,7 @@ You'll need the following installed on your machine:
 
     ```bash
     git clone [https://github.com/Ryan-Har/dbd_history.git](https://github.com/Ryan-Har/dbd_history.git)
-    cd YOUR_REPO_NAME
+    cd dbd_history
     ```
 
 2.  **Run the application:**
@@ -37,6 +36,7 @@ You'll need the following installed on your machine:
     ```
 
     The application will typically start on `http://localhost:8080`.
+    The application uses SQLite for persistence, typically this is in the location `./db/characters.db`
 
 ---
 
