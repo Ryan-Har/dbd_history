@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>History</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
+    />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <style>
+      html,
+      body {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: #1a1a1a;
+        color: #f0f0f0;
+      }
+
+      .container {
+        margin-top: 2rem;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #1a1a1a;
+        color: #f0f0f0;
+        table-layout: fixed; /* ensures columns don't shift */
+      }
+
+      th,
+      td {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid #333;
+        vertical-align: middle;
+      }
+
+      th {
+        background-color: #222;
+        font-weight: bold;
+        color: #f0f0f0 !important;
+      }
+
+      tr:nth-child(even) {
+        background-color: #2a2a2a;
+      }
+
+      tr:nth-child(odd) {
+        background-color: #1f1f1f;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      .back-button {
+        background-color: #333;
+        color: #f0f0f0;
+        border: none;
+        margin-top: 1rem;
+      }
+
+      .back-button:hover {
+        background-color: #555;
+      }
+
+      .character-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+      }
+
+      .character-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 1;
+      }
+
+      .delete-buttons {
+        display: flex;
+        gap: 0.25rem;
+        flex-shrink: 0;
+      }
+
+      .delete-buttons button {
+        min-width: 90px;
+        white-space: nowrap;
+      }
+
+      .character-column {
+        width: 50%;
+      }
+
+      .timestamp-column {
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="section">
+      <div class="container">
+        <h1 class="title has-text-light">Character Selection History</h1>
+        <table>
+          <thead>
+            <tr>
+              <th class="timestamp-column">Timestamp</th>
+              <th class="character-column">Character</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{range .}}
+            <tr x-data="{ confirmDelete: false }">
+              <td>{{.Timestamp}}</td>
+              <td>
+                <div class="character-wrapper">
+                  <div class="character-text">{{.Character}}</div>
+                  <form method="POST" action="/delete" style="margin: 0">
+                    <input type="hidden" name="id" value="{{.ID}}" />
+                    <template x-if="!confirmDelete">
+                      <button
+                        type="button"
+                        @click="confirmDelete = true"
+                        class="button is-danger is-small"
+                      >
+                        Delete
+                      </button>
+                    </template>
+                    <template x-if="confirmDelete">
+                      <div class="delete-buttons">
+                        <button
+                          type="submit"
+                          class="button is-warning is-small"
+                        >
+                          Are you sure?
+                        </button>
+                        <button
+                          type="button"
+                          @click="confirmDelete = false"
+                          class="button is-light is-small"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </template>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {{end}}
+          </tbody>
+        </table>
+        <a href="/" class="button back-button">Back</a>
+      </div>
+    </section>
+  </body>
+</html>
