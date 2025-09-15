@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Stats</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      html,
+      body {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: #1a1a1a;
+        color: #f0f0f0;
+      }
+      canvas {
+        background: #222;
+        border-radius: 8px;
+        padding: 1rem;
+      }
+
+      .back-button {
+        background-color: #333;
+        color: #f0f0f0;
+        border: none;
+        margin-top: 1rem;
+      }
+
+      .back-button:hover {
+        background-color: #555;
+      }
+      .card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      .card-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* vertically center content */
+        align-items: center;     /* horizontally center content */
+      }
+    </style>
+  </head>
+  <body>
+    <section class="section">
+      <div class="container">
+        <div class="level">
+          <div class="level-left">
+            <h1 class="title has-text-light level-item">Stats</h1>
+          </div>
+          <div class="level-right">
+            <a href="/" class="button back-button level-item">Back</a>
+          </div>
+        </div>
+
+        <div class="columns is-multiline">
+          <div class="column is-one-quarter">
+            <div class="card has-background-dark has-text-light">
+              <div
+                class="card-content"
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                "
+              >
+                <p class="title is-5 has-text-light">Last Played</p>
+                <figure
+                  class="image is-64x64"
+                  style="margin-bottom: 0.5rem"
+                  title="{{.LastPlayed}}"
+                >
+                  <img src="{{.LastPlayedImage}}" alt="{{.LastPlayed}}" />
+                </figure>
+                <p>{{.LastPlayedAt}}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="column is-one-quarter">
+            <div class="card has-background-dark has-text-light is-fullheight">
+              <div
+                class="card-content"
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                "
+              >
+                <p class="title is-5 has-text-light">Least Played</p>
+                <figure
+                  class="image is-64x64"
+                  style="margin-bottom: 0.5rem"
+                  title="{{.LeastPlayed}}"
+                >
+                  <img src="{{.LeastPlayedImage}}" alt="{{.LeastPlayed}}" />
+                </figure>
+                <p>{{.LeastPlayed}}</p>
+              </div>
+            </div>
+          </div>
+          <div class="column is-one-quarter">
+            <div class="card has-background-dark has-text-light">
+              <div
+                class="card-content"
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                "
+              >
+                <p class="title is-5 has-text-light">Twins</p>
+                <figure class="image is-64x64" style="margin-bottom: 0.5rem">
+                  <img src="{{.TwinsImage}}" alt="Twins" />
+                </figure>
+                <p>{{.TwinsLastTime}}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="column is-one-quarter">
+            <div class="card has-background-dark has-text-light">
+                <div class="card-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <p class="title is-5 has-text-light">Total Games</p>
+                <p class="is-size-3 has-text-light">{{.TotalGames}}</p>
+                </div>
+            </div>
+          </div>
+
+        <h2 class="subtitle has-text-light">Most Played Characters</h2>
+        <canvas id="mostPlayedChart"></canvas>
+      </div>
+    </section>
+
+    <script>
+          const stats = {{ toJson .Stats }};
+
+          // Preload images
+          const images = {};
+          stats.forEach(s => {
+            const img = new Image();
+            img.src = s.Image;
+            images[s.Character] = img;
+          });
+
+          const chart = new Chart(document.getElementById("mostPlayedChart"), {
+      type: "bar",
+      data: {
+        labels: stats.map(s => s.Character),
+        datasets: [{
+          label: "Plays",
+          data: stats.map(s => s.Count),
+          backgroundColor: "#4CAF50"
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        },
+        layout: {
+          padding: { bottom: 60 } // space for portraits
+        },
+        scales: {
+          x: {
+            ticks: { display: false } // hide text
+          },
+          y: {
+            ticks: { color: "#f0f0f0" }
+          }
+        }
+      },
+      plugins: [{
+        id: 'characterImages',
+        afterDraw: (chart) => {
+          const { ctx, scales: { x }, chartArea: { bottom } } = chart;
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(0, 0, chart.width, chart.height); // full canvas clip
+          ctx.clip();
+
+          x.ticks.forEach((tick, i) => {
+            const label = chart.data.labels[i];
+            const img = images[label];
+            if (!img.complete) return;
+            const xPos = x.getPixelForTick(i);
+            const size = 40;
+            ctx.drawImage(img, xPos - size / 2, bottom + 10, size, size);
+          });
+
+          ctx.restore();
+        }
+      }]
+          });
+    </script>
+  </body>
+</html>

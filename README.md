@@ -25,7 +25,7 @@ You'll need the following installed on your machine:
 1.  **Clone the repository:**
 
     ```bash
-    git clone [https://github.com/Ryan-Har/dbd_history.git](https://github.com/Ryan-Har/dbd_history.git)
+    git clone https://github.com/Ryan-Har/dbd_history.git
     cd dbd_history
     ```
 
