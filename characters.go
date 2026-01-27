@@ -47,4 +47,5 @@ var characters = []Character{
 	{Name: "Ghoul", Image: "/static/images/K39_TheGhoul_Portrait.webp"},
 	{Name: "Animatronic", Image: "/static/images/K40_TheAnimatronic_Portrait.webp"},
 	{Name: "Krasue", Image: "/static/images/K41_TheKrasue_Portrait.webp"},
+	{Name: "First", Image: "/static/images/K42_TheFirst_Portrait.webp"},
 }
