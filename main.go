@@ -54,25 +54,78 @@ func main() {
 	http.HandleFunc("/history", handleHistory)
 	http.HandleFunc("/delete", handleDelete)
 	http.HandleFunc("/stats", handleStats)
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	http.HandleFunc("GET /images/{id}", handleCharacterImage)
+
+	//admin routes
+	http.HandleFunc("GET /admin", handleAdmin)
+	http.HandleFunc("POST /admin/characters", handleAddCharacter)
+	http.HandleFunc("POST /admin/characters/{id}/update", handleUpdateCharacter)
+	http.HandleFunc("POST /admin/characters/{id}/delete", handleDeleteCharacter)
 
 	log.Println("Server running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 func initDB() {
-	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS entries (
+	_, err := db.Exec(`
+	CREATE TABLE IF NOT EXISTS entries (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		timestamp INTEGER,
 		character TEXT
-	)`)
+	);
+	CREATE TABLE IF NOT EXISTS characters (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT NOT NULL UNIQUE,
+		image BLOB NOT NULL,
+		image_type TEXT NOT NULL
+	);
+	`)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
+	characters, err := getCharacters()
+	if err != nil {
+		log.Println("Failed to retrieve characters:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	templates.ExecuteTemplate(w, "index.html", characters)
+}
+
+func handleCharacterImage(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil || id <= 0 {
+		http.NotFound(w, r)
+		return
+	}
+
+	var imageData []byte
+	var imageType string
+
+	err = db.QueryRow(`
+        SELECT image, image_type
+        FROM characters
+        WHERE id = ?
+    `, id).Scan(&imageData, &imageType)
+
+	if err != nil {
+		if err != sql.ErrNoRows {
+			log.Println("Image retrieval error:", err)
+		}
+
+		http.NotFound(w, r)
+		return
+	}
+
+	w.Header().Set("Content-Type", imageType)
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("Cache-Control", "no-store")
+
+	w.Write(imageData)
 }
 
 func handleSubmit(w http.ResponseWriter, r *http.Request) {
@@ -147,6 +200,14 @@ func handleDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleStats(w http.ResponseWriter, r *http.Request) {
+
+	characters, err := getCharacters()
+	if err != nil {
+		log.Println("Failed to retrieve characters:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	// Build a map of character counts from DB
 	rows, err := db.Query("SELECT character, COUNT(*) as cnt FROM entries GROUP BY character")
 	if err != nil {
