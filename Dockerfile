@@ -29,9 +29,7 @@ RUN mkdir db
 # Copy the built executable from the builder stage
 COPY --from=builder /app/main .
 
-# Copy the static assets and templates
-# Adjust these paths if your static/templates folders are not directly in the root of your Go app
-COPY static/ ./static/
+# Copy the static templates
 COPY templates/ ./templates/
 
 # Expose the port your Go application listens on
